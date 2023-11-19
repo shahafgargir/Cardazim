@@ -11,6 +11,13 @@ import socket
 def send_data(server_ip, server_port, data):
     '''
     Send data to server in address (server_ip, server_port).
+
+    :param server_ip: the Ip of the server
+    :type server_ip: string
+    :param server_port: the port we will send the message to
+    :type server_port: int
+    :returns: nothing
+    :rtype: void
     '''
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((server_ip,server_port))

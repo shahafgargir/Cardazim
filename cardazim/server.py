@@ -1,5 +1,5 @@
 
-
+from threading import Thread
 import argparse
 import sys
 import struct
@@ -10,26 +10,56 @@ import math
 ####################### YOUR CODE #########################
 ###########################################################
 
+def handle_connection(connect_socket):
+    """
+    This function gets connected socket and receive 
+    the length of it (4 bytes, little endial number) and 
+    then the message itself 
+    
+    :param connect_socket: this is the connected socket we will read from
+    :type connect_socket: socket
+    :returns: nothing
+    :rtype: void
+    """
+    from_client = b''
+    data_length = 4
+    data_length_binary = b''
 
-def set_server(client_ip, client_port):
+    #get the length of the sentence 
+    while (len(data_length_binary) < data_length):
+        data = connect_socket.recv(data_length - len(data_length_binary))
+        data_length_binary += data
+
+    data_length = int.from_bytes(data_length_binary, "little")
+
+    #get the sentence itself
+    while (len(from_client) < data_length):
+        data = connect_socket.recv(min(4096,data_length - len(from_client)))
+        from_client += data
+
+    from_client = from_client.decode('utf8')
+
+    print ("Received data: ",from_client)
+    connect_socket.close()
+
+def set_server(server_ip, server_port):
+    """ 
+    This function gets the ip and the port that the 
+    serverl will listening to, and when accept a connction
+    create new tread to handle the connenction and repeate
+    the listening untill Ctrl+C 
+    
+    :param client_ip: the ip 
+    """
     serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     serv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    serv.bind((client_ip, client_port))
-    serv.listen(1)
+    serv.bind((server_ip, server_port))
+    serv.listen(2)
     while True:
         conn, addr = serv.accept()
-        from_client = ''
-        data_length_binary = conn.recv(4)
-        data_length = int.from_bytes(data_length_binary, "little")
+        Thread(target=handle_connection, args=[conn]).run()
 
-        while (len(from_client) < data_length):
-            data = conn.recv(4096)
-            from_client += data.decode('utf8')
-
-        print ("Received data: ",from_client)
-        conn.close()
-    print ('client disconnected and shutdown')
 
 
 ###########################################################
