@@ -2,15 +2,14 @@
 from threading import Thread
 import argparse
 import sys
-import struct
-import socket
-import math
+from listener import *
+from connection import *
 
 ###########################################################
 ####################### YOUR CODE #########################
 ###########################################################
 
-def handle_connection(connect_socket):
+def handle_connection(conn : Connection):
     """
     This function gets connected socket and receive 
     the length of it (4 bytes, little endial number) and 
@@ -21,26 +20,10 @@ def handle_connection(connect_socket):
     :returns: nothing
     :rtype: void
     """
-    from_client = b''
-    data_length = 4
-    data_length_binary = b''
-
-    #get the length of the sentence 
-    while (len(data_length_binary) < data_length):
-        data = connect_socket.recv(data_length - len(data_length_binary))
-        data_length_binary += data
-
-    data_length = int.from_bytes(data_length_binary, "little")
-
-    #get the sentence itself
-    while (len(from_client) < data_length):
-        data = connect_socket.recv(min(4096,data_length - len(from_client)))
-        from_client += data
-
-    from_client = from_client.decode('utf8')
-
+    from_client = conn.receive_message()
+    
     print ("Received data: ",from_client)
-    connect_socket.close()
+    conn.send_message("Got Message!")
 
 def set_server(server_ip, server_port):
     """ 
@@ -49,16 +32,17 @@ def set_server(server_ip, server_port):
     create new tread to handle the connenction and repeate
     the listening untill Ctrl+C 
     
-    :param client_ip: the ip 
+    :param server_ip: the ip we will listening from
+    :type server_ip: string
+    :param server_port: the port the server will listening to
+    :type server_port: int
+    :returns: this function run till Ctrl+C
+    :rtype: void
     """
-    serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    serv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    serv.bind((server_ip, server_port))
-    serv.listen(2)
-    while True:
-        conn, addr = serv.accept()
-        Thread(target=handle_connection, args=[conn]).run()
+    with Listener(server_port,server_ip) as ls:
+        with ls.accept() as conn:
+            handle_connection(conn)
+            # Thread(target=handle_connection, args=[conn]).run()
 
 
 

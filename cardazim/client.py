@@ -1,7 +1,6 @@
 import argparse
 import sys
-import struct
-import socket
+from  connection import *
 
 ###########################################################
 ####################### YOUR CODE #########################
@@ -19,14 +18,10 @@ def send_data(server_ip, server_port, data):
     :returns: nothing
     :rtype: void
     '''
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((server_ip,server_port))
-    length = struct.pack("<I",len(data.encode()))
-    print("Sending message...")
-    client.sendall(length + data.encode())
-    from_server = client.recv(4096)
-    client.close()
-    print (from_server.decode())
+    with Connection.connect(server_ip,server_port) as conn:
+        conn.send_message(data)
+        from_server = conn.receive_message()
+        print (from_server)
 
 
 ###########################################################
