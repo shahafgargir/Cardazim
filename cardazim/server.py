@@ -4,6 +4,7 @@ import argparse
 import sys
 from listener import *
 from connection import *
+import card
 
 ###########################################################
 ####################### YOUR CODE #########################
@@ -20,10 +21,9 @@ def handle_connection(conn : Connection):
     :returns: nothing
     :rtype: void
     """
-    from_client = conn.receive_message()
-    
-    print ("Received data: ",from_client)
-    conn.send_message("Got Message!")
+    data = conn.receive_message()
+    client_card = card.Card.deserialize(data)
+    print (client_card)
 
 def set_server(server_ip, server_port):
     """ 
@@ -39,10 +39,12 @@ def set_server(server_ip, server_port):
     :returns: this function run till Ctrl+C
     :rtype: void
     """
+
     with Listener(server_port,server_ip) as ls:
-        with ls.accept() as conn:
-            handle_connection(conn)
-            # Thread(target=handle_connection, args=[conn]).run()
+        while True:
+            with ls.accept() as conn:
+                handle_connection(conn)
+                # Thread(target=handle_connection, args=[conn]).run()
 
 
 

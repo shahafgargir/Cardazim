@@ -1,6 +1,7 @@
 import argparse
 import sys
 from  connection import *
+import card
 
 ###########################################################
 ####################### YOUR CODE #########################
@@ -20,8 +21,6 @@ def send_data(server_ip, server_port, data):
     '''
     with Connection.connect(server_ip,server_port) as conn:
         conn.send_message(data)
-        from_server = conn.receive_message()
-        print (from_server)
 
 
 ###########################################################
@@ -30,13 +29,17 @@ def send_data(server_ip, server_port, data):
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description='Send data to server.')
-    parser.add_argument('server_ip', type=str,
-                        help='the server\'s ip')
-    parser.add_argument('server_port', type=int,
-                        help='the server\'s port')
-    parser.add_argument('data', type=str,
-                        help='the data')
+    parser = argparse.ArgumentParser(description='Send Card to server.')
+    parser.add_argument('card_name', type=str,
+                        help='the Card\'s name')
+    parser.add_argument('creator_name', type=str,
+                        help='the creator\'s name')
+    parser.add_argument('riddle', type=str,
+                        help='the riddle')
+    parser.add_argument('solution', type=str,
+                        help='the solution')
+    parser.add_argument('path', type=str,
+                        help='the path to the image')
     return parser.parse_args()
 
 
@@ -46,7 +49,11 @@ def main():
     '''
     args = get_args()
     try:
-        send_data(args.server_ip, args.server_port, args.data)
+        client_card = card.Card.create_from_path(args.card_name, args.creator_name, args.path, args.riddle, args.solution)
+        client_card.encript_card()
+        data = client_card.serialize()
+
+        send_data("127.0.0.1", 8080, data)
         print('Done.')
     except Exception as error:
         print(f'ERROR: {error}')

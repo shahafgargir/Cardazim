@@ -16,8 +16,10 @@ class Connection:
         other_addr = self.socket.getpeername()
         return "<Connection from " + my_addr[0] + ":" + str(my_addr[1]) + " to " + other_addr[0]+":" + str(other_addr[1])+ ">"
     def send_message(self, message):
-        length = struct.pack("<I",len(message.encode()))
-        self.socket.sendall(length + message.encode())
+        if (not isinstance(message,bytes)):
+            message = message.encode()
+        length = struct.pack("<I",len(message))
+        self.socket.sendall(length + message)
     def receive_message(self):
         message = b''
         data_length = 4
@@ -37,7 +39,7 @@ class Connection:
             if (len(data)== 0):
                 raise ConnectionAbortedError
 
-        return message.decode('utf8')
+        return message
     def close(self):
         self.socket.close()
 
