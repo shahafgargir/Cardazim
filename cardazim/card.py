@@ -27,6 +27,12 @@ class Card:
     def encript_card(self):    
         self.image.encrypt(self.solution)
     
+    def decrypt_card(self, key):
+        if self.image.decrypt(key):
+            self.solution = key
+            return True
+        return False
+    
     def serialize(self):
         data = b''
         data += struct.pack("<I",len(self.name.encode())) + self.name.encode()
