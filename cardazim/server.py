@@ -5,12 +5,13 @@ import sys
 from listener import *
 from connection import *
 import card
+from saver import Saver
 
 ###########################################################
 ####################### YOUR CODE #########################
 ###########################################################
 
-def handle_connection(conn : Connection):
+def handle_connection(conn : Connection, save_path : str):
     """
     This function gets connected socket and receive 
     the length of it (4 bytes, little endial number) and 
@@ -18,14 +19,18 @@ def handle_connection(conn : Connection):
     
     :param connect_socket: this is the connected socket we will read from
     :type connect_socket: socket
+    :param server_port: the path to save the card
+    :type server_port: string
     :returns: nothing
     :rtype: void
     """
     data = conn.receive_message()
     client_card = card.Card.deserialize(data)
+    Saver.save_unsolved(client_card, save_path)
+    
     print (client_card)
 
-def set_server(server_ip, server_port):
+def set_server(server_ip, server_port, save_path):
     """ 
     This function gets the ip and the port that the 
     serverl will listening to, and when accept a connction
@@ -36,6 +41,8 @@ def set_server(server_ip, server_port):
     :type server_ip: string
     :param server_port: the port the server will listening to
     :type server_port: int
+    :param server_port: the path to save the card
+    :type server_port: string
     :returns: this function run till Ctrl+C
     :rtype: void
     """
@@ -43,7 +50,7 @@ def set_server(server_ip, server_port):
     with Listener(server_port,server_ip) as ls:
         while True:
             with ls.accept() as conn:
-                handle_connection(conn)
+                handle_connection(conn, save_path)
                 # Thread(target=handle_connection, args=[conn]).run()
 
 
@@ -59,6 +66,8 @@ def get_args():
                         help='the client\'s ip')
     parser.add_argument('client_port', type=int,
                         help='the client\'s port')
+    parser.add_argument('save_path', type=str,
+                        help='path for saving the card')
     return parser.parse_args()
 
 
@@ -67,12 +76,15 @@ def main():
     Implementation of CLI and receave data from client.
     '''
     args = get_args()
-    try:
-        set_server(args.client_ip, args.client_port)
-        print('Done.')
-    except Exception as error:
-        print(f'ERROR: {error}')
-        return 1
+    
+    set_server(args.client_ip, args.client_port, args.save_path)
+    print('Done.')
+    # try:
+    #     set_server(args.client_ip, args.client_port, args.save_path)
+    #     print('Done.')
+    # except Exception as error:
+    #     print(f'ERROR: {error}')
+    #     return 1
 
 
 if __name__ == '__main__':
