@@ -70,15 +70,9 @@ class ChooseCardsForm(npyscreen.ActionForm):
         replace this method with your own code
         (read files from memory etc.)
         '''
-        card_dict = []
-        for card in [num for num in os.listdir(UNSOLVED_PATH) if num.isdigit()]:
-            with open(UNSOLVED_PATH + "/" + card, 'rb') as f:
-                data = f.read()
-                card = Card.deserialize(data)
-                card_dict.append(card)
-                
-
-        return card_dict
+        
+        saver = Saver()
+        return saver.load_data(UNSOLVED_PATH)
 
     ###########################################################
     ##################### END OF YOUR CODE ####################
@@ -136,8 +130,8 @@ class SolveCardForm(npyscreen.Form):
         '''
         print(f'{CARD_STR.format(card=card)} was solved correctly!')
         print(f'The solution was: {solution}')
-
-        Saver.save(card, SOLVED_PATH)
+        saver = Saver()
+        saver.save(card, SOLVED_PATH)
 
 
 

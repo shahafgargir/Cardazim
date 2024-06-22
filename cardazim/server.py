@@ -26,9 +26,9 @@ def handle_connection(conn : Connection, save_path : str):
     """
     data = conn.receive_message()
     client_card = card.Card.deserialize(data)
-    Saver.save_unsolved(client_card, save_path)
+    saver = Saver()
+    saver.save(client_card, save_path)
     
-    print (client_card)
 
 def set_server(server_ip, server_port, save_path):
     """ 
