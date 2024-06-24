@@ -72,7 +72,7 @@ class ChooseCardsForm(npyscreen.ActionForm):
         '''
         
         saver = Saver()
-        return saver.load_data(UNSOLVED_PATH)
+        return saver.load_unsolved_cards(UNSOLVED_PATH)
 
     ###########################################################
     ##################### END OF YOUR CODE ####################

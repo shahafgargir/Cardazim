@@ -14,16 +14,24 @@ class FileSystemSaver:
         with open(path + "/metadata.json", 'w') as f:
             json_data = json.dumps(data)
             f.write(json_data)
-    def load_data(self, path):
+    def load_unsolved(self, unsolved_path):
         cards_data_array = []
-        for card in os.listdir(path):
+        for card in os.listdir(unsolved_path):
             if (card[0] == "."):
                 continue
-            with open(path + "/" + card + "/metadata.json", "r") as f:
+            with open(unsolved_path + "/" + card + "/metadata.json", "r") as f:
                 j = json.load(f)
             with open(j["image_path"], "rb") as f:
                 cards_data_array.append(f.read())
         return cards_data_array
+    def load_metadata(self, path):
+        metadata = []
+        for card in os.listdir(path):
+            if (card[0] == "."):
+                continue
+            with open(path + "/" + card + "/metadata.json", "r") as f:
+                metadata.append(json.load(f))
+        return metadata
 
 
 def get_driver(driver_url):
@@ -63,14 +71,16 @@ class Saver:
                     "image_path": image_path
                 }
         self.driver.save(data, dir_path)
-    def load_data(self, path):
+    def load_unsolved_cards(self, path):
         card_dict = []
-        cards_data_array = self.driver.load_data(path)
+        cards_data_array = self.driver.load_unsolved(path)
         for card_data in cards_data_array:
             # card = Card.create_from_path(card_data["name"], card_data["creator"], card_data["image_path"], card_data["riddle"], card_data["solution"], card_data["key_hash"].encode("latin-1"))
             card = Card.deserialize(card_data)
             card_dict.append(card)
         return card_dict
+    def load_metadata(self, path):
+        return self.driver.load_metadata(path)
 
 
     # @classmethod

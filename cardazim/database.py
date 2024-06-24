@@ -15,13 +15,25 @@ class DatabaseSaver:
             self.unsolved.insert_one(data)
         else:
             raise ValueError("Invalid path")
-    def load_data(self, path):
+    def load_unsolved(self, path):
         cards_data_array = []
         for card in self.unsolved.find():
             image_path = card["image_path"]
             with open(image_path, "rb") as f:
                 cards_data_array.append(f.read())
         return cards_data_array
+    def load_metadata(self, path):
+        metadata = []
+        print(path)
+        if (path == "./solved_cards"):
+            db = self.solved
+        elif (path == "./unsolved_cards"):
+            db = self.unsolved
+        else:
+            raise ValueError("Invalid path")
+        for card in db.find():
+            metadata.append(card)
+        return metadata
 
 def insert_one(mydb,mycol):
     mydict = { "name": "John", "address": "Highway 37" }
@@ -38,7 +50,7 @@ def list_database(mydb,mycol):
 
 def rm_all(mydb, mycol):
     mycol.delete_many({})
-    
+
 def rm_database(myclient):
     myclient.drop_database("cardazim_database")
 
