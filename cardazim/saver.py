@@ -49,7 +49,7 @@ class Saver:
         self.driver = get_driver(driver_url)
 
     def save(self, card : Card, dir_path="."):
-        print(card)
+        # print(card)
         path = dir_path + "/" + card.name
         os.mkdir(path)
         

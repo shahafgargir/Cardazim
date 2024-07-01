@@ -9,9 +9,9 @@ class DatabaseSaver:
         self.unsolved = mydb["unsolved_cards"]
 
     def save(self, data, path):
-        if (path == "./solved_cards"):
+        if (path == "./static/solved_cards"):
             self.solved.insert_one(data)
-        elif (path == "./unsolved_cards"):
+        elif (path == "./static/unsolved_cards"):
             self.unsolved.insert_one(data)
         else:
             raise ValueError("Invalid path")
@@ -24,10 +24,10 @@ class DatabaseSaver:
         return cards_data_array
     def load_metadata(self, path):
         metadata = []
-        print(path)
-        if (path == "./solved_cards"):
+        # print(path)
+        if (path == "./static/solved_cards"):
             db = self.solved
-        elif (path == "./unsolved_cards"):
+        elif (path == "./static/unsolved_cards"):
             db = self.unsolved
         else:
             raise ValueError("Invalid path")
